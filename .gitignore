@@ -1,0 +1,29 @@
+# SBT directories
+target/
+project/target/
+project/project/
+
+# IDE-specific files
+.vscode/
+*.iml
+
+# Dependency caches
+.ivy2/
+.sbt/
+.metals/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Runtime files
+*.class
+*.jar
+
+# Input/output files
+*_input.txt
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
