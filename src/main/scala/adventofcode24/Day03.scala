@@ -60,6 +60,7 @@ object Day03 {
     // Initialize variables
     var total = 0
     var doMul = true
+    var countMul = 0
 
     val (result2, time2) = timeExecution {
         // Process each match in the input
@@ -76,12 +77,16 @@ object Day03 {
                 val y = m.group(2).toInt
                 total += x * y
             }
+            if (m.group(1) != null) {
+                countMul += 1
+            }
         }
         total
     }
 
     // Print the result
     println(f"The result for Day $day, part 2 is: $result2 (solved in ${time2 / 1e6}%.2f ms)")
+    println(s"Countmul = $countMul")
   }
 
   def parseInput(lines: List[String]): List[List[Int]] = {
