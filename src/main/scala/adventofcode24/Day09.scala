@@ -193,9 +193,7 @@ object Day09 {
     val (result2, time2) = timeExecution {
       // solve part 2 here
       val segments = parseDiskMap(input2)
-      // println(segments)
       val compactedSegments = compactDiskWholeFiles(segments)
-      // println(compactedSegments)
       val checksum = calculateChecksum(compactedSegments)
       checksum
     }
