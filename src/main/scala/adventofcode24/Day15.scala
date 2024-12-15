@@ -175,17 +175,13 @@ object Day15 {
       moves.foreach { m =>
         m match {
           case '>' =>
-            val newPos = performMoveHorz(grid, 1, robotPos.row, robotPos.col)
-            robotPos = Position(newPos._1, newPos._2)
+            robotPos = performMoveHorz(grid, 1, robotPos)
           case '<' =>
-            val newPos = performMoveHorz(grid, -1, robotPos.row, robotPos.col)
-            robotPos = Position(newPos._1, newPos._2)
+            robotPos = performMoveHorz(grid, -1, robotPos)
           case '^' =>
-            val newPos = performMoveVert(grid, -1, robotPos.row, robotPos.col)
-            robotPos = Position(newPos._1, newPos._2)
+            robotPos = performMoveVert(grid, -1, robotPos)
           case 'v' =>
-            val newPos = performMoveVert(grid, 1, robotPos.row, robotPos.col)
-            robotPos = Position(newPos._1, newPos._2)
+            robotPos = performMoveVert(grid, 1, robotPos)
           case _ => println(s"Unknown move: $m") // Debugging: unexpected move
         }
 
@@ -202,13 +198,12 @@ object Day15 {
     def canMoveHorz(
         grid: Array[Array[Char]],
         dir: Int,
-        r: Int,
-        c: Int
+        pos: Position
     ): Boolean = {
-      grid(r)(c + dir) match {
+      grid(pos.row)(pos.col + dir) match {
         case '#'       => false
         case '.'       => true
-        case '[' | ']' => canMoveHorz(grid, dir, r, c + dir)
+        case '[' | ']' => canMoveHorz(grid, dir, Position(pos.row, pos.col + dir))
         case _         => false
       }
     }
@@ -217,70 +212,60 @@ object Day15 {
     def canMoveVert(
         grid: Array[Array[Char]],
         dir: Int,
-        r: Int,
-        c: Int
+        pos: Position
     ): Boolean = {
-      grid(r + dir)(c) match {
+      grid(pos.row + dir)(pos.col) match {
         case '#' => false
         case '.' => true
         case '[' =>
-          canMoveVert(grid, dir, r + dir, c) && canMoveVert(
-            grid,
-            dir,
-            r + dir,
-            c + 1
-          )
+          canMoveVert(grid, dir, Position(pos.row + dir, pos.col)) && 
+          canMoveVert(grid, dir, Position(pos.row + dir,pos.col+1))
         case ']' =>
-          canMoveVert(grid, dir, r + dir, c) && canMoveVert(
-            grid,
-            dir,
-            r + dir,
-            c - 1
-          )
+          canMoveVert(grid, dir, Position(pos.row + dir, pos.col)) && 
+          canMoveVert(grid, dir, Position(pos.row + dir,pos.col-1))
         case _ => false
       }
     }
 
 // Horizontal movement execution
-    def doMoveHorz(grid: Array[Array[Char]], dir: Int, r: Int, c: Int): Unit = {
-      val temp = grid(r)(c)
+    def doMoveHorz(grid: Array[Array[Char]], dir: Int, pos: Position): Unit = {
+      val temp = grid(pos.row)(pos.col)
 
-      if (grid(r)(c + dir) != '.') {
-        doMoveHorz(grid, dir, r, c + dir)
+      if (grid(pos.row)(pos.col + dir) != '.') {
+        doMoveHorz(grid, dir, Position(pos.row, pos.col + dir))
       }
 
-      grid(r)(c + dir) = temp
-      grid(r)(c) = '.'
+      grid(pos.row)(pos.col + dir) = temp
+      grid(pos.row)(pos.col) = '.'
     }
 
 // Vertical movement execution
-    def doMoveVert(grid: Array[Array[Char]], dir: Int, r: Int, c: Int): Unit = {
-      val temp = grid(r)(c)
+    def doMoveVert(grid: Array[Array[Char]], dir: Int, pos: Position): Unit = {
+      val temp = grid(pos.row)(pos.col)
 
-      if (grid(r + dir)(c) == '[') {
-        doMoveVert(grid, dir, r + dir, c)
-        doMoveVert(grid, dir, r + dir, c + 1)
-      } else if (grid(r + dir)(c) == ']') {
-        doMoveVert(grid, dir, r + dir, c)
-        doMoveVert(grid, dir, r + dir, c - 1)
+      if (grid(pos.row + dir)(pos.col) == '[') {
+        doMoveVert(grid, dir, Position(pos.row + dir, pos.col))
+        doMoveVert(grid, dir, Position(pos.row + dir, pos.col + 1))
+      } else if (grid(pos.row + dir)(pos.col) == ']') {
+        doMoveVert(grid, dir, Position(pos.row + dir, pos.col))
+        doMoveVert(grid, dir, Position(pos.row + dir, pos.col - 1))
       }
 
-      grid(r + dir)(c) = temp
-      grid(r)(c) = '.'
+      grid(pos.row + dir)(pos.col) = temp
+      grid(pos.row)(pos.col) = '.'
     }
 
     // Perform horizontal move
     def performMoveHorz(
         grid: Array[Array[Char]],
         dir: Int,
-        row: Int,
-        col: Int
-    ): (Int, Int) = {
-      if (canMoveHorz(grid, dir, row, col)) {
-        doMoveHorz(grid, dir, row, col)
-        (row, col + dir) // Update the robot's position
+        pos: Position
+    ): Position = {
+      if (canMoveHorz(grid, dir, pos)) {
+        doMoveHorz(grid, dir, pos)
+        Position(pos.row, pos.col + dir) // Update the robot's position
       } else {
-        (row, col) // No movement
+        pos // No movement
       }
     }
 
@@ -288,14 +273,13 @@ object Day15 {
     def performMoveVert(
         grid: Array[Array[Char]],
         dir: Int,
-        row: Int,
-        col: Int
-    ): (Int, Int) = {
-      if (canMoveVert(grid, dir, row, col)) {
-        doMoveVert(grid, dir, row, col)
-        (row + dir, col) // Update the robot's position
+        pos: Position
+    ): Position = {
+      if (canMoveVert(grid, dir, pos)) {
+        doMoveVert(grid, dir, pos)
+        Position(pos.row + dir, pos.col) // Update the robot's position
       } else {
-        (row, col) // No movement
+        pos // No movement
       }
     }
 
