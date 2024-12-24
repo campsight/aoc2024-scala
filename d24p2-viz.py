@@ -42,15 +42,9 @@ def find_gate(gates, a, b, op):
     """
     return next((g for g in gates if (g["a"] == a and g["b"] == b or g["a"] == b and g["b"] == a) and g["op"] == op), {"output": "!!!"})
 
-def find_gate_out(gates, in1, out, op):
-    """
-    Finds a gate matching the given inputs and operation, accounting for input order.
-    """
-    return next((g for g in gates if (g["a"] == in1 or g["b"] == in1) and g["op"] == op and g["output"] == out), {"output": "!!!"})
-
 def find_gate_part(gates, in1, op):
     """
-    Finds a gate matching the given inputs and operation, accounting for input order.
+    Finds a gate matching the given input and operation.
     """
     return next((g for g in gates if (g["a"] == in1 or g["b"] == in1) and g["op"] == op), {"output": "!!!"})
 
@@ -77,6 +71,13 @@ def visualize_circuit_full_adder(wire_values, gates, swaps):
         x = f"x{i:02d}"
         y = f"y{i:02d}"
         z = f"z{i:02d}"
+
+        # Initialize variables for debugging
+        xor1 = {"output": "uninitialized"}
+        and1 = {"output": "uninitialized"}
+        xor2 = {"output": "uninitialized"}
+        and2 = {"output": "uninitialized"}
+        or_gate = {"output": "uninitialized"}
 
         try:
             # Find gates corresponding to this bit
@@ -109,9 +110,16 @@ def visualize_circuit_full_adder(wire_values, gates, swaps):
             visualization.append(f"{carrier_bit} --|")
 
             carrier_bit = next_carrier_bit
+            if carrier_bit == "!!!":
+                raise Exception("Carry bit error")
 
         except Exception as e:
             visualization.append(f"Error processing bit {i}: {e}")
+            visualization.append(f"xor1: {xor1}")
+            visualization.append(f"xor2: {xor2}")
+            visualization.append(f"and1: {and1}")
+            visualization.append(f"and2: {and2}")
+            visualization.append(f"or: {or_gate}")
             visualization.append("")
 
     print("\n".join(visualization))
@@ -121,8 +129,9 @@ def process_circuit(input_file):
     Processes the circuit and visualizes the full adder for all bits.
     """
     wire_values, gates = parse_input(input_file)
-    # initialize swaps= ["z00", "z00", "z00", "z00", "z00", "z00", "z00", "z00"] and see what is wrong
-    swaps = ["z06", "ksv", "kbs", "nbd", "z20", "tqq", "z39", "ckb"]
+    # initialize => see what is wrong and correct one by one
+    swaps = ["z00", "z00", "z00", "z00", "z00", "z00", "z00", "z00"]
+    # my solution swaps = ["z06", "ksv", "kbs", "nbd", "z20", "tqq", "z39", "ckb"]
     # Visualize the circuit
     print("Circuit Visualization:")
     visualize_circuit_full_adder(wire_values, gates, swaps)
